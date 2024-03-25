@@ -44,6 +44,9 @@ export const getGucciSearchResults = async ({
 }): Promise<SearchResultsHandler<GeneralSearchResultProductItem>> => {
   //
   const pageId = parseInt(page) - 1;
+
+  // build search query so we can match custom attributes like category
+  // (e.g. "women gucci long-sleeve t-shirt" - {gender} {merchant} {category} {query})
   const query =
     genderSlug +
     (category
@@ -56,6 +59,7 @@ export const getGucciSearchResults = async ({
     "x-algolia-agent": "Algolia for JavaScript (4.20.0); Browser (lite)",
   });
 
+  // hits per page should always be 50
   const payload = {
     query,
     clickAnalytics: true,
