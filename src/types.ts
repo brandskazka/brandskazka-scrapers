@@ -1,20 +1,7 @@
 export type NotRequired<T> = T | undefined | null;
 export type Gender = "women" | "men" | "kids";
 
-export type ExternalMerchantId =
-  | "ff"
-  | "lv"
-  | "..."
-  | "general-product"
-  | "hm"
-  | "miumiu"
-  | "prada"
-  | "loropiana"
-  | "christofle"
-  | "zegna"
-  | "fendi"
-  | "gucci"
-  | "armani";
+export type ExternalMerchantId = string;
 
 type ProductId = string | number;
 
@@ -54,12 +41,16 @@ export type GeneralProductItem = {
 
 export type GeneralSearchResultProductItem = {
   id: ProductId;
+  objectID: ProductId;
   slug: string;
   title: string;
+  gender: string[];
+  backend: "salesforce" | "algolia" | "custom";
   currency: string | number;
   price: number;
   brand: FarfetchBrand;
   images: FarfetchImage[];
+  category: string[];
 };
 
 type ProductVariantTypes = "Size" | "Color" | "Model";

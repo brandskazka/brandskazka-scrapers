@@ -118,3 +118,27 @@ export function capitalizeFirstLetter(string: string): string {
 export function removeHtmlTags(input?: string): NotRequired<string> {
   return input?.replace(/<[^>]*>/g, "");
 }
+
+export const parseSrcSet = (srcSet?: string) => {
+  if (!srcSet) return null;
+  // Regex to match the URL and its associated descriptor (1x, 2x, 1920w, etc.)
+  const regex = /([^\s]+)\s+(\d+w|\d+x)/g;
+  let match;
+  const sources = [];
+
+  // Iterate over all matches
+  while ((match = regex.exec(srcSet)) !== null) {
+    const url = match[1];
+    const descriptor = match[2];
+    const value = parseInt(descriptor, 10); // Parse the numeric part of the descriptor
+
+    // Store the URL and its numeric descriptor value
+    sources.push({ url, value });
+  }
+
+  // Sort the sources by their descriptor value in descending order
+  sources.sort((a, b) => b.value - a.value);
+
+  // Return the URL with the highest descriptor value
+  return sources.length > 0 ? sources[0].url : null;
+};

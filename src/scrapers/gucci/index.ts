@@ -10,6 +10,7 @@ import type {
 import type { GucciItem } from "./types";
 
 import { getRubleRate, logger } from "@/lib/utils";
+import { formatImage } from "./utils";
 
 export const DEFAULT_HEADERS = {
   "User-Agent":
@@ -24,9 +25,16 @@ export function generateProductUrlHandle({ objectID, name_en_gb }: GucciItem) {
   const brand = "gucci";
 
   const shortDescription = name_en_gb
-    .toLowerCase()
-    .replace(/[а-яё]+/g, "")
-    .replace(/\s+/g, "-");
+    ?.toString() // Convert input to string
+    .toLowerCase() // Convert to lowercase
+    .trim() // Remove leading and trailing whitespace
+    .normalize("NFD") // Normalize characters to decomposed form
+    .replace(/[\u0300-\u036f]/g, "") // Remove combining diacritical marks
+    .replace(/[^a-z0-9\s-]/g, "") // Remove non-alphanumeric characters except spaces and hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace consecutive hyphens with a single hyphen
+    .replace(/^-+|-+$/g, "") // Remove leading and trailing hyphens
+    .replace(/-{2,}/g, "-"); // Replace multiple hyphens with a single hyphen
 
   return `${brand}-${shortDescription}-${merchantId}-${objectID}`;
 }
@@ -47,13 +55,6 @@ export const getGucciSearchResults = async ({
 
   // build search query so we can match custom attributes like category
   // (e.g. "women gucci long-sleeve t-shirt" - {gender} {merchant} {category} {query})
-  const query =
-    genderSlug +
-    (category
-      ? ` ${category}`
-      : searchValue.length > 2
-      ? ` ${searchValue}`
-      : "");
 
   const searchParams = new URLSearchParams({
     "x-algolia-agent": "Algolia for JavaScript (4.20.0); Browser (lite)",
@@ -61,51 +62,41 @@ export const getGucciSearchResults = async ({
 
   // hits per page should always be 50
   const payload = {
-    query,
+    // query: ,
     clickAnalytics: true,
     analytics: true,
     hitsPerPage: 50,
     page: pageId,
-    facetFilters: [
-      ["sellableIn:fr"],
-      ["inStock:true", "isVisibleWithoutStock:true", "isStockInStore:true"],
-      ["categoryLevel1_en_gb:Men"],
-    ],
-    facets: [
-      "categoryLevel1_en_gb",
-      "categoryLevel2_en_gb",
-      "categoryLevel3_en_gb",
-      "combinedCategory3And4_en_gb",
-      "material_en_gb",
-      "lineName",
-      "colour_en_gb",
-      "size_en_gb",
-    ],
-    restrictSearchableAttributes: [
-      "styleCode",
-      "categoryLevel1_en_gb",
-      "categoryLevel2_en_gb",
-      "categoryLevel3_en_gb",
-      "categoryLevel4_en_gb",
-      "allCategories_en_gb",
-      "name_en_gb",
-      "lineName",
-      "material_en_gb",
-      "colour_en_gb",
-      "size_en_gb",
-      "sku",
-    ],
-    attributesToRetrieve: [
-      "name_en_gb",
-      "imgUrl",
-      "altImgUrl",
-      "price_eur",
-      "pdpUrl",
-      "categoryLevel1_en_gb",
-      "categoryLevel2_en_gb",
-      "categoryLevel3_en_gb",
-      "categoryLevel4_en_gb",
-    ],
+    // facetFilters: [
+    //   ["sellableIn:fr"],
+    //   ["inStock:true", "isVisibleWithoutStock:true", "isStockInStore:true"],
+    //   ["categoryLevel1_en_gb:Men"],
+    // ],
+    // facets: [
+    //   "categoryLevel1_en_gb",
+    //   "categoryLevel2_en_gb",
+    //   "categoryLevel3_en_gb",
+    //   "combinedCategory3And4_en_gb",
+    //   "material_en_gb",
+    //   "lineName",
+    //   "colour_en_gb",
+    //   "size_en_gb",
+    // ],
+    // restrictSearchableAttributes: [
+    //   "styleCode",
+    //   "categoryLevel1_en_gb",
+    //   "categoryLevel2_en_gb",
+    //   "categoryLevel3_en_gb",
+    //   "categoryLevel4_en_gb",
+    //   "allCategories_en_gb",
+    //   "name_en_gb",
+    //   "lineName",
+    //   "material_en_gb",
+    //   "colour_en_gb",
+    //   "size_en_gb",
+    //   "sku",
+    // ],
+    attributesToRetrieve: ["*"],
     attributesToHighlight: [],
     analyticsTags: ["fr", "en_gb", "fr-en_gb"],
   };
@@ -119,7 +110,7 @@ export const getGucciSearchResults = async ({
     }
   );
 
-  if (response.ok) {
+  if (!response.ok) {
     const json = await response.json();
     logger.DEV_LOG_ONLY(json);
     logger.DEV_LOG_ONLY(
@@ -136,7 +127,6 @@ export const getGucciSearchResults = async ({
   }
 
   const json: AlgoliaSingleResponse<GucciItem> = await response.json();
-  //   const { nbHits, nbPages, hits} = json
 
   if (!json.hits || json.hits.length === 0) {
     logger.DEV_LOG_ONLY(json);
@@ -162,25 +152,35 @@ export const getGucciSearchResults = async ({
 
   const ruble_rate = await getRubleRate();
 
-  const price_converted_products = json?.hits.map((product) => ({
-    id: product.id,
-    title: product.name_en_gb,
-    currency: product.price_eur,
-    brand: {
-      id: "gucci",
-      name: "Gucci",
-      description: "Gucci",
-    },
-    images: [
-      {
-        url: product.imgUrl.replace("//", "https://"),
-        order: 1,
-        size: "1000",
+  // console.log(json?.hits);
+  const price_converted_products: GeneralSearchResultProductItem[] =
+    json?.hits?.map((product) => ({
+      id: product.objectID,
+      gender: product.genders_en_gb,
+      objectID: product.objectID,
+      title: product.name_en_gb,
+      currency: "RUB",
+      category: product.allCategories_en_gb,
+      brand: {
+        id: "gucci",
+        name: "Gucci",
+        description: "Gucci",
       },
-    ],
-    slug: generateProductUrlHandle(product),
-    price: product.price_eur * 1.2 * ruble_rate,
-  }));
+      images: [
+        {
+          url: product.imgUrl
+            .replace("//", "https://")
+            .replace(
+              "$format$",
+              formatImage(product.thumbnailUrl.split("/")[4])
+            ),
+          order: 1,
+          size: "1000",
+        },
+      ],
+      slug: generateProductUrlHandle(product),
+      price: product.price_eur * 1.2 * ruble_rate,
+    }));
 
   return {
     totalItems,

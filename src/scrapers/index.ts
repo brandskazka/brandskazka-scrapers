@@ -7,9 +7,9 @@ import type {
   GeneralSearchResultProductItem,
   SearchResultsHandler,
 } from "@/types";
-import { regex } from "./scrapers/patterns";
-import { logger } from "./lib/utils";
-import { getGucciSearchResults } from "./scrapers/gucci";
+import { regex } from "@/scrapers/patterns";
+import { logger } from "@/lib/utils";
+import { getGucciSearchResults } from "@/scrapers/gucci";
 
 /* 
     {productId} and {merchantId} are parsed from the url 

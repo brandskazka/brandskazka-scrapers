@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,9 @@
     "jest": "^29.7.0"
   },
   "dependencies": {
+    "algoliasearch": "^4.23.3",
     "cheerio": "1.0.0-rc.12",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "node-html-parser": "^6.1.13"
   }
 }

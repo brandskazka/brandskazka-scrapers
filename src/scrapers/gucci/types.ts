@@ -14,7 +14,13 @@ export type Price = {
 export type GucciItem = {
   id: string;
   imgUrl: string;
+  genders_en_gb: string[];
+  thumbnailUrl: string;
   name_en_gb: string;
+  allCategories_en_gb: string[];
+  primaryImageData: {
+    format: string;
+  };
   objectID: string;
   pdpUrl: string;
   price_eur: number;
