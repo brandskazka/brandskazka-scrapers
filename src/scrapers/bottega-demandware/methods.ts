@@ -51,7 +51,7 @@ export const getBottegaSearchResults = async ({
   const $ = load(html);
 
   if (response.status !== 200) {
-    console.log("response status is bad in getCelineSearchResults");
+    console.error("response status is bad in getCelineSearchResults");
     return {
       totalItems: 0,
       totalPages: 0,
@@ -99,7 +99,7 @@ export const getBottegaSearchResults = async ({
       price: json.discountPrice * 1.2 * ruble_rate,
     };
 
-    // console.log(item);
+    // console.item(item);
     products.push(item);
   });
 

@@ -1,14 +1,44 @@
 import { index } from "@/lib/algolia";
 import { fsync, writeFileSync } from "fs";
+import { sleep } from "./lib/utils";
 
 // remove all products from index with faucet "brand.name": "Loro Piana"
 // remove all products from index with faucet "brand.name": "Loro Piana"
 // remove all products from index with faucet "brand.name": "Loro Piana"
+
 // (async () => {
-//   const response = await index.deleteBy({
-//     facetFilters: ["brand.name:Loewe"],
-//   });
-//   console.log(response);
+//   const results = await index.search("", {
+//     analytics: false,
+//     attributesToRetrieve: ["*"],
+//     attributesToSnippet: ["*:20"],
+//     enableABTest: false,
+//     explain: ["*"],
+//     facetFilters: [
+//       [
+//         "gender:Baby",
+//         "gender:Baby Dior",
+//         "gender:Bags",
+//         "gender:Beachwear",
+//         "gender:FENDI x FRGMT x POKÉMON",
+//         "gender:Gift Ideas",
+//         "gender:Gifts",
+//         "gender:Loewe-baskets",
+//         "gender:Personalised-charms",
+//         "gender:Unisex",
+//       ],
+//     ],
+//     facets: ["*"],
+//     getRankingInfo: true,
+//     hitsPerPage: 100,
+//     maxValuesPerFacet: 100,
+//     page: 0,
+//     responseFields: ["*"],
+//     snippetEllipsisText: "…",
+//   }); // Process allProducts here (e.g., save to database, display, etc.)
+
+//   await index
+//     .deleteObjects(results.hits.map((x) => x.objectID))
+//     .then(console.log);
 // })();
 
 // (async () => {
@@ -330,52 +360,52 @@ import { fsync, writeFileSync } from "fs";
 // })();
 
 // (async () => {
-//     const { getLouisVuittonSearchResults } = await import(
-//       "./scrapers/louis-vuitton/methods"
-//     );
+//   const { getLouisVuittonSearchResults } = await import(
+//     "./scrapers/louis-vuitton/methods"
+//   );
 
-//     let allProducts = []; // Array to store all scraped products
+//   let allProducts = []; // Array to store all scraped products
 
-//     try {
-//       let { totalPages, currentPage, products } =
-//         await getLouisVuittonSearchResults({
-//           page: "1",
-//           searchValue: "",
-//           category: "",
-//         });
+//   try {
+//     let { totalPages, currentPage, products } =
+//       await getLouisVuittonSearchResults({
+//         page: "1",
+//         searchValue: "",
+//         category: "",
+//       });
 
-//       allProducts.push(...products); // Add initial page products
+//     allProducts.push(...products); // Add initial page products
 
-//       while (currentPage < totalPages) {
-//         currentPage++; // Increment page before fetching
+//     while (currentPage < totalPages) {
+//       currentPage++; // Increment page before fetching
 
-//         const result = await getLouisVuittonSearchResults({
-//           page: String(currentPage),
-//           searchValue: "",
-//           category: "",
-//         });
+//       const result = await getLouisVuittonSearchResults({
+//         page: String(currentPage),
+//         searchValue: "",
+//         category: "",
+//       });
 
-//         //   console.log(result);
-//         console.log(`Fetched page ${currentPage} of ${totalPages}`);
-//         allProducts.push(...result.products); // Add products from each page
-//       }
-
-//       console.log("All Louis Vuitton search results scraped successfully!");
-//       console.log("Total products:", allProducts.length);
-
-//       const response = await index.saveObjects(
-//         allProducts.filter((x) => typeof x !== "undefined")
-//       ); // Save all products to Algolia
-//       console.log(response);
-
-//       // console.log(allProducts);
-//       console.log("Algolia indexing complete!");
-
-//       // Process allProducts here (e.g., save to database, display, etc.)
-//     } catch (error) {
-//       console.error("Error fetching Louis Vuitton search results:", error);
+//       //   console.log(result);
+//       console.log(`Fetched page ${currentPage} of ${totalPages}`);
+//       allProducts.push(...result.products); // Add products from each page
 //     }
-//   })();
+
+//     console.log("All Louis Vuitton search results scraped successfully!");
+//     console.log("Total products:", allProducts.length);
+
+//     const response = await index.saveObjects(
+//       allProducts.filter((x) => typeof x !== "undefined")
+//     ); // Save all products to Algolia
+//     console.log(response);
+
+//     // console.log(allProducts);
+//     console.log("Algolia indexing complete!");
+
+//     // Process allProducts here (e.g., save to database, display, etc.)
+//   } catch (error) {
+//     console.error("Error fetching Louis Vuitton search results:", error);
+//   }
+// })();
 
 // (async () => {
 //   const { getFendiSearchResults } = await import(
@@ -549,46 +579,105 @@ import { fsync, writeFileSync } from "fs";
 //   }
 // })();
 
+// (async () => {
+//   const { getBottegaSearchResults } = await import(
+//     "./scrapers/bottega-demandware/methods"
+//   );
+
+//   let allProducts = []; // Array to store all scraped products
+
+//   try {
+//     let { totalPages, currentPage, products } = await getBottegaSearchResults({
+//       page: "1",
+//     });
+
+//     allProducts.push(...products); // Add initial page products
+
+//     while (currentPage < totalPages) {
+//       currentPage++; // Increment page before fetching
+
+//       const result = await getBottegaSearchResults({
+//         page: String(currentPage),
+//       });
+
+//       //   console.log(result.products[0].images);
+//       console.log(`Fetched page ${currentPage} of ${totalPages}`);
+//       allProducts.push(...result.products);
+//     }
+
+//     console.log("All Bottega Veneta search results scraped successfully!");
+//     console.log("Total products:", allProducts.length);
+
+//     const result = allProducts.filter((x) => typeof x !== "undefined");
+
+//     // save to file & upload to Algolia
+//     writeFileSync("results.json", JSON.stringify(result), "utf8");
+//     const response = await index.saveObjects(
+//       allProducts.filter((x) => typeof x !== "undefined")
+//     );
+
+//     console.warn(`${response.objectIDs.length} objects saved to Algolia`);
+//     console.warn("Algolia indexing complete!");
+//   } catch (error) {
+//     console.error("Error fetching Bottega Veneta search results:", error);
+//   }
+// })();
+
 (async () => {
-  const { getBottegaSearchResults } = await import(
-    "./scrapers/bottega-demandware/methods"
+  const { gender } = await import("./scrapers/mytheresa");
+  const { getAllBrands, getAllProducts } = await import(
+    "./scrapers/mytheresa/index"
   );
 
-  let allProducts = []; // Array to store all scraped products
+  const brands = await getAllBrands();
 
-  try {
-    let { totalPages, currentPage, products } = await getBottegaSearchResults({
-      page: "1",
-    });
+  console.log(
+    `Total of ${brands.length} brands was loaded for "${gender}" gender.`
+  );
 
-    allProducts.push(...products); // Add initial page products
+  for (let i = 0; i < brands.length; i++) {
+    // await sleep(i * 3000);
+    let allProducts = []; // Array to store all scraped products
 
-    while (currentPage < totalPages) {
-      currentPage++; // Increment page before fetching
+    try {
+      let { totalPages, currentPage, totalItems, products } =
+        await getAllProducts(1, brands[i].slug);
 
-      const result = await getBottegaSearchResults({
-        page: String(currentPage),
-      });
+      console.log(
+        `Fetching ${totalItems} products for brand ${i + 1} (${
+          brands[i].name
+        }) of ${brands.length}`
+      );
 
-      //   console.log(result.products[0].images);
-      console.log(`Fetched page ${currentPage} of ${totalPages}`);
-      allProducts.push(...result.products);
+      allProducts.push(...products); // Add initial page products
+
+      while (currentPage < totalPages) {
+        currentPage++; // Increment page before fetching
+
+        const result = await getAllProducts(1, brands[i].slug);
+
+        //   console.log(result.products[0].images);
+        console.log(`Fetched page ${currentPage} of ${totalPages}`);
+        allProducts.push(...result.products);
+      }
+
+      console.log(`All ${brands[i].name} search results scraped successfully!`);
+      console.log("Total products:", allProducts.length);
+
+      const result = allProducts.filter((x) => typeof x !== "undefined");
+
+      // save to file & upload to Algolia
+      writeFileSync("results.json", JSON.stringify(result), "utf8");
+      const response = await index.saveObjects(
+        allProducts.filter((x) => typeof x !== "undefined")
+      );
+
+      console.warn(`${response.objectIDs.length} objects saved to Algolia`);
+      console.warn("Algolia indexing complete!");
+    } catch (error) {
+      console.error("Error fetching Bottega Veneta search results:", error);
     }
-
-    console.log("All Bottega Veneta search results scraped successfully!");
-    console.log("Total products:", allProducts.length);
-
-    const result = allProducts.filter((x) => typeof x !== "undefined");
-
-    // save to file & upload to Algolia
-    writeFileSync("results.json", JSON.stringify(result), "utf8");
-    const response = await index.saveObjects(
-      allProducts.filter((x) => typeof x !== "undefined"),
-    );
-
-    console.log(`${response.objectIDs.length} objects saved to Algolia`);
-    console.log("Algolia indexing complete!");
-  } catch (error) {
-    console.error("Error fetching Bottega Veneta search results:", error);
   }
+
+  // for loop to iterate through brands and asynchronously fetch products, and push to allProducts array
 })();

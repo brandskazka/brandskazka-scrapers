@@ -77,6 +77,8 @@ export const getLouisVuittonSearchResults = async ({
     };
   } = await response.json();
 
+  console.log(json.skus.hits);
+
   const ruble_rate = await getRubleRate();
 
   console.log(json.skus.hits[0]?.offers?.priceSpecification?.[0]);
