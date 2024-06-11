@@ -668,8 +668,9 @@ import { sleep } from "./lib/utils";
 
       // save to file & upload to Algolia
       writeFileSync("results.json", JSON.stringify(result), "utf8");
-      const response = await index.saveObjects(
-        allProducts.filter((x) => typeof x !== "undefined")
+      const response = await index.partialUpdateObjects(
+        allProducts.filter((x) => typeof x !== "undefined"),
+        { createIfNotExists: true }
       );
 
       console.warn(`${response.objectIDs.length} objects saved to Algolia`);

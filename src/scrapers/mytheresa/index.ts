@@ -2,7 +2,7 @@ import { getRubleRate } from "@/lib/utils";
 import type { GeneralSearchResultProductItem } from "@/types";
 
 type Gender = "men" | "women" | "kids";
-export const gender: Gender = "kids";
+export const gender: Gender = "women";
 
 let headers = {
   "Content-Type": "application/json",
@@ -108,6 +108,8 @@ export const getAllProducts = async (page: number = 1, slug: string) => {
   const pagination = {
     ...json.data.xProductListingPage.pagination,
   };
+
+  console.log(json.data.xProductListingPage.products[0]);
 
   const products: GeneralSearchResultProductItem =
     json.data.xProductListingPage.products.map((product: any) => ({
