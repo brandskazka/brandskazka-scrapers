@@ -644,9 +644,9 @@ import { sleep } from "./lib/utils";
         await getAllProducts(1, brands[i].slug);
 
       console.log(
-        `Fetching ${totalItems} products for brand ${i + 1} (${
-          brands[i].name
-        }) of ${brands.length}`
+        `Fetching ${totalItems} products for brand ${brands[i].name} (${
+          i + 1
+        }/${brands.length})`
       );
 
       allProducts.push(...products); // Add initial page products
@@ -675,7 +675,10 @@ import { sleep } from "./lib/utils";
       console.warn(`${response.objectIDs.length} objects saved to Algolia`);
       console.warn("Algolia indexing complete!");
     } catch (error) {
-      console.error("Error fetching Bottega Veneta search results:", error);
+      console.error(
+        `Error fetching ${brands[i].name}. Internet connection has likely been interrupted:`,
+        error
+      );
     }
   }
 

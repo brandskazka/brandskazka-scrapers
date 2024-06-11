@@ -104,14 +104,6 @@ export const getAllProducts = async (page: number = 1, slug: string) => {
   });
 
   const json: any = await response.json();
-  //   console.log(
-  //     json,
-  //     slug
-  //       .replace("men/", "/")
-  //       .replace("women/", "/")
-  //       .replace("kids/", "/")
-  //       .replace("wo/", "/")
-  //   );
 
   const pagination = {
     ...json.data.xProductListingPage.pagination,
@@ -150,10 +142,10 @@ export const getAllProducts = async (page: number = 1, slug: string) => {
         id: variant.sku,
         type: "Size",
         size: variant.size,
-        price: variant.price.discount * 1.2 * ruble_rate,
+        price: (variant.price.discount / 100) * 1.2 * ruble_rate,
       })),
       slug: product.slug.replace("/", ""),
-      price: product.price.discount * 1.2 * ruble_rate,
+      price: (product.price.discount / 100) * 1.2 * ruble_rate,
     }));
 
   return {

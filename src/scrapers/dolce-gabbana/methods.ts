@@ -138,6 +138,7 @@ export const getDolceGabbanaSearchResults = async ({
       return {
         id: product.objectID,
         objectID: product.objectID,
+        backend: "algolia",
         title: product.name.replace("DOLCE&GABBANA", "").replace("BLANCO", ""),
         currency: "RUB",
         gender: [product.searchable_categories.level_2],
