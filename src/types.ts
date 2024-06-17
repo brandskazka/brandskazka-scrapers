@@ -45,7 +45,8 @@ export type GeneralSearchResultProductItem = {
   slug: string;
   title: string;
   gender: string[];
-  backend: "salesforce" | "algolia" | "custom";
+  updatedAt: Date | string;
+  backend: "salesforce" | "algolia" | "custom" | "farfetch";
   currency: string | number;
   price: number;
   brand: FarfetchBrand;

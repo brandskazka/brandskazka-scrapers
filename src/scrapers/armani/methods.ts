@@ -104,6 +104,7 @@ export const getArmaniSearchResults = async ({
     result?.hits.map((product) => ({
       id: product.objectID,
       objectID: product.objectID,
+      backend: "algolia",
       title: product?.nameEN || product?._highlightResult?.name?.value || "",
       currency: "RUB",
       gender: [product._highlightResult.Gender[0].value],

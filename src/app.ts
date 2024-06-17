@@ -36,8 +36,9 @@ import { sleep } from "./lib/utils";
 //     snippetEllipsisText: "…",
 //   }); // Process allProducts here (e.g., save to database, display, etc.)
 
+// (async () => {
 //   await index
-//     .deleteObjects(results.hits.map((x) => x.objectID))
+//     .deleteBy({ facetFilters: ["backend:farfetch"] })
 //     .then(console.log);
 // })();
 
@@ -623,13 +624,77 @@ import { sleep } from "./lib/utils";
 //   }
 // })();
 
+// (async () => {
+//   const { gender } = await import("./scrapers/mytheresa");
+//   const { getAllBrands, getAllProducts } = await import(
+//     "./scrapers/mytheresa/index"
+//   );
+
+//   const brands = await getAllBrands();
+
+//   console.log(
+//     `Total of ${brands.length} brands was loaded for "${gender}" gender.`
+//   );
+
+//   for (let i = 0; i < brands.length; i++) {
+//     // await sleep(i * 3000);
+//     let allProducts = []; // Array to store all scraped products
+
+//     try {
+//       let { totalPages, currentPage, totalItems, products } =
+//         await getAllProducts(1, brands[i].slug);
+
+//       console.log(
+//         `Fetching ${totalItems} products for brand ${brands[i].name} (${
+//           i + 1
+//         }/${brands.length})`
+//       );
+
+//       allProducts.push(...products); // Add initial page products
+
+//       while (currentPage < totalPages) {
+//         currentPage++; // Increment page before fetching
+
+//         const result = await getAllProducts(currentPage, brands[i].slug);
+
+//         //   console.log(result.products[0].images);
+//         console.log(`Fetched page ${currentPage} of ${totalPages}`);
+//         allProducts.push(...result.products);
+//       }
+
+//       console.log(`All ${brands[i].name} search results scraped successfully!`);
+//       console.log("Total products:", allProducts.length);
+
+//       const result = allProducts.filter((x) => typeof x !== "undefined");
+
+//       // save to file & upload to Algolia
+//       // writeFileSync("results.json", JSON.stringify(result), "utf8");
+//       const response = await index.partialUpdateObjects(
+//         allProducts.filter((x) => typeof x !== "undefined"),
+//         { createIfNotExists: true }
+//       );
+
+//       console.warn(`${response.objectIDs.length} objects saved to Algolia`);
+//       console.warn("Algolia indexing complete!");
+//     } catch (error) {
+//       console.error(
+//         `Error fetching ${brands[i].name}. Internet connection has likely been interrupted:`,
+//         error
+//       );
+//     }
+//   }
+
+//   // for loop to iterate through brands and asynchronously fetch products, and push to allProducts array
+// })();
+
 (async () => {
-  const { gender } = await import("./scrapers/mytheresa");
-  const { getAllBrands, getAllProducts } = await import(
-    "./scrapers/mytheresa/index"
-  );
+  const { gender } = await import("./scrapers/farfetch");
+  const { getAllBrands, getAllProducts } = await import("./scrapers/farfetch");
 
   const brands = await getAllBrands();
+
+  // writeFileSync(`${gender}.txt`, brands.map((x) => x.name).join("\n"), "utf8");
+  // return;
 
   console.log(
     `Total of ${brands.length} brands was loaded for "${gender}" gender.`
@@ -641,7 +706,7 @@ import { sleep } from "./lib/utils";
 
     try {
       let { totalPages, currentPage, totalItems, products } =
-        await getAllProducts(1, brands[i].slug);
+        await getAllProducts(1, brands[i].id);
 
       console.log(
         `Fetching ${totalItems} products for brand ${brands[i].name} (${
@@ -654,20 +719,20 @@ import { sleep } from "./lib/utils";
       while (currentPage < totalPages) {
         currentPage++; // Increment page before fetching
 
-        const result = await getAllProducts(1, brands[i].slug);
+        const result = await getAllProducts(currentPage, brands[i].id);
 
-        //   console.log(result.products[0].images);
         console.log(`Fetched page ${currentPage} of ${totalPages}`);
         allProducts.push(...result.products);
+        console.log("Current products stored:", allProducts.length);
       }
 
-      console.log(`All ${brands[i].name} search results scraped successfully!`);
+      console.log(`All ${brands[i].name} results scraped successfully!`);
       console.log("Total products:", allProducts.length);
 
       const result = allProducts.filter((x) => typeof x !== "undefined");
 
       // save to file & upload to Algolia
-      writeFileSync("results.json", JSON.stringify(result), "utf8");
+      // writeFileSync("results.json", JSON.stringify(result), "utf8");
       const response = await index.partialUpdateObjects(
         allProducts.filter((x) => typeof x !== "undefined"),
         { createIfNotExists: true }

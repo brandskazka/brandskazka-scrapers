@@ -2,7 +2,7 @@ import { getRubleRate } from "@/lib/utils";
 import type { GeneralSearchResultProductItem } from "@/types";
 
 type Gender = "men" | "women" | "kids";
-export const gender: Gender = "women";
+export const gender: Gender = "men";
 
 let headers = {
   "Content-Type": "application/json",
@@ -109,7 +109,7 @@ export const getAllProducts = async (page: number = 1, slug: string) => {
     ...json.data.xProductListingPage.pagination,
   };
 
-  console.log(json.data.xProductListingPage.products[0]);
+  //   console.log(json.data.xProductListingPage.products[0]);
 
   const products: GeneralSearchResultProductItem =
     json.data.xProductListingPage.products.map((product: any) => ({
@@ -118,7 +118,8 @@ export const getAllProducts = async (page: number = 1, slug: string) => {
       title: product.name,
       currency: "RUB",
       gender: [gender],
-      backend: "algolia",
+      backend: "mytheresa",
+      updatedAt: new Date().toISOString(),
       category: parseCategories(product.combinedCategoryName),
       brand: {
         id: product.designer
