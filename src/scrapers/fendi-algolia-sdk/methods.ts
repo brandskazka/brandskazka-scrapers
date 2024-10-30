@@ -7,8 +7,8 @@ import algoliasearch from "algoliasearch";
 export const defaultHeaders = {
   "User-Agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-  "X-Algolia-Api-Key": "583ffa17fa2b3bf27fdcb0406384db97",
-  "X-Algolia-Application-Id": "JQOD3KIWAT",
+  "X-Algolia-Api-Key": "2432d2d29d010990eb08b1f31dcdebaf",
+  "X-Algolia-Application-Id": "7VXQ9SKMZW",
   Dnt: "1",
 };
 
