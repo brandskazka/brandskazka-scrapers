@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "algoliasearch": "^4.23.3",
+    "bun": "^1.1.33",
     "cheerio": "1.0.0-rc.12",
     "dotenv": "^16.4.5",
     "node-html-parser": "^6.1.13"

@@ -1,5 +1,5 @@
 import algoliasearch from "algoliasearch";
 
-const client = algoliasearch("7VXQ9SKMZW", "2432d2d29d010990eb08b1f31dcdebaf");
+const client = algoliasearch("P80WOP9K0O", "7abb32d0f1e554cbeb81e6c8a1c3529d");
 export const index = client.initIndex("products");
 // export const index = client.initIndex("products_raw");

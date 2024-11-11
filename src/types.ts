@@ -51,6 +51,7 @@ export type GeneralSearchResultProductItem = {
   price: number;
   brand: FarfetchBrand;
   images: FarfetchImage[];
+  variants: ProductVariant[];
   category: string[];
 };
 

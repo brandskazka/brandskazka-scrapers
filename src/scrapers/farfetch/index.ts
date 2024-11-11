@@ -1,6 +1,7 @@
 import { getRubleRate } from "@/lib/utils";
 import type { GeneralSearchResultProductItem } from "@/types";
 import { readFileSync } from "fs";
+import * as fs from "fs";
 
 type Gender = "Men" | "Women" | "Kids";
 export const gender: Gender = "Men";
@@ -70,16 +71,29 @@ export const getAllBrands = async () => {
   );
 
   const json = await response.json();
+  console.warn("Response: ", json);
+
+  // Write JSON data to a file named 'data.json'
 
   let designers: { name: string; id: string }[] = [];
   const designerList = json.entries;
   for (const { name, id } of designerList) {
     if (id && name) {
-      if (activeGender?.brands.includes(name)) {
-        designers.push({ name, id });
-      }
+      // if (activeGender?.brands.includes(name)) {
+      designers.push({ name, id });
+      // }
     }
   }
+  // let designers: { name: string; id: string }[] = [];
+  // const designerList = json.entries;
+  // for (const { name, id } of designerList) {
+  //   if (id && name) {
+  //     if (activeGender?.brands.includes(name)) {
+  //       designers.push({ name, id });
+  //     }
+  //   }
+  // }
+
   return designers;
 };
 
