@@ -1,4 +1,4 @@
-import { index } from "@/lib/algolia";
+import { brandskazka_index, mode_wave_index } from "@/lib/algolia";
 import { fsync, writeFileSync } from "fs";
 import { sleep } from "./lib/utils";
 
@@ -692,6 +692,7 @@ import { sleep } from "./lib/utils";
   const { getAllBrands, getAllProducts } = await import("./scrapers/farfetch");
 
   const brands = await getAllBrands();
+  writeFileSync("./src/data/sel_brands.json", JSON.stringify(brands), "utf8");
 
   // writeFileSync(`${gender}.txt`, brands.map((x) => x.name).join("\n"), "utf8");
   // return;
@@ -702,19 +703,19 @@ import { sleep } from "./lib/utils";
 
   for (let i = 0; i < brands.length; i++) {
     // await sleep(i * 3000);
-    let allProducts = []; // Array to store all scraped products
-
+    let allProductsInRub = []; // Array to store all scraped products
+    let allProductsInEuro = []; // Array to store all
     try {
-      let { totalPages, currentPage, totalItems, products } =
+      let { totalPages, currentPage, totalItems, products_in_rub, products_in_euro } =
         await getAllProducts(1, brands[i].id);
 
       console.log(
-        `Fetching ${totalItems} products for brand ${brands[i].name} (${
-          i + 1
+        `Fetching ${totalItems} products for brand ${brands[i].name} (${i + 1
         }/${brands.length})`
       );
 
-      allProducts.push(...products); // Add initial page products
+      allProductsInRub.push(...products_in_rub); // Add initial page products
+      allProductsInEuro.push(...products_in_euro); // Add initial page products
 
       while (currentPage < totalPages) {
         currentPage++; // Increment page before fetching
@@ -722,24 +723,32 @@ import { sleep } from "./lib/utils";
         const result = await getAllProducts(currentPage, brands[i].id);
 
         console.log(`Fetched page ${currentPage} of ${totalPages}`);
-        allProducts.push(...result.products);
-        console.log("Current products stored:", allProducts.length);
+        allProductsInRub.push(...result.products_in_rub);
+        allProductsInEuro.push(...result.products_in_euro);
+        console.log("Current products in Rub stored:", allProductsInRub.length);
+        console.log("Current products in Euro stored:", allProductsInEuro.length);
       }
 
       console.log(`All ${brands[i].name} results scraped successfully!`);
-      console.log("Total products:", allProducts.length);
+      console.log("Total products:", allProductsInRub.length);
 
-      const result = allProducts.filter((x) => typeof x !== "undefined");
+      const result = allProductsInRub.filter((x) => typeof x !== "undefined");
 
       // save to file & upload to Algolia
-      // writeFileSync("results.json", JSON.stringify(result), "utf8");
-      const response = await index.partialUpdateObjects(
-        allProducts.filter((x) => typeof x !== "undefined"),
+      const responseBrandskazka = await brandskazka_index.partialUpdateObjects(
+        allProductsInRub.filter((x) => typeof x !== "undefined"),
+        { createIfNotExists: true }
+      );
+
+      const responseModewave = await mode_wave_index.partialUpdateObjects(
+        allProductsInEuro.filter((x) => typeof x !== "undefined"),
         { createIfNotExists: true }
       );
       // console.log("result: ", result);
 
-      console.warn(`${response.objectIDs.length} objects saved to Algolia`);
+      console.warn(`${responseBrandskazka.objectIDs.length} objects saved to brandskazka Algolia`);
+      console.warn(`${responseModewave.objectIDs.length} objects saved to mode wave Algolia`);
+
       console.warn("Algolia indexing complete!");
     } catch (error) {
       console.error(
